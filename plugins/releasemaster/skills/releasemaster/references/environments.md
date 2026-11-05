@@ -1,12 +1,12 @@
-# Environments: Claude Code, desktop app, claude.ai
+# Environments: local agents, desktop app, claude.ai
 
 The skill is the same everywhere; what differs is whether it can see the user's repos and where results go. Decide in the first minute, silently.
 
 | Situation | How to tell | Repos | Config | Deliver |
 |---|---|---|---|---|
-| **Claude Code** (terminal / IDE) | cwd is inside the workspace; `git rev-parse` works | read directly | `./.releasemaster/…` or `~/.releasemaster/…` | write into the repo after approval |
-| **Desktop app, folder linked** | `mcp__remote-devices__` file tools present | there is no shell on the user's machine, so git history cannot be read in place: ask the user to run `portable.py export` once and attach the zip (or stage it through the bridge) | the config file via the bridge | commit files through the bridge into the connected folder |
-| **claude.ai / sandbox, no access** | cwd is an empty sandbox; no repos | user attaches `releasemaster-upload.zip` | inside that zip | hand the files back (SendUserFile / artifact); say plainly the user must commit them |
+| **Local coding agent** (Claude Code, Codex, Cursor, OpenCode, Kimi Code…) | cwd is inside the workspace; `git rev-parse` works | read directly | `./.releasemaster/…` or `~/.releasemaster/…` | write into the repo after approval |
+| **Desktop app, folder linked** | file tools for a linked folder present, no shell on the user's machine | there is no shell on the user's machine, so git history cannot be read in place: ask the user to run `portable.py export` once and attach the zip (or stage it through the bridge) | the config file via the bridge | commit files through the bridge into the connected folder |
+| **claude.ai / sandbox, no access** | cwd is an empty sandbox; no repos | user attaches `releasemaster-upload.zip` | inside that zip | hand the files back as attachments or downloads; say plainly the user must commit them |
 
 ## Sandbox flow (no access to the user's disk)
 
@@ -18,7 +18,7 @@ The skill is the same everywhere; what differs is whether it can see the user's 
 
 ## Differences to handle
 
-- **Slash commands exist only in Claude Code** (plugin `/releasemaster:…`). Elsewhere the same work is requested in words ("release notes since the last note", "what changed this week", "status"). Map the words to the commands in SKILL.md.
+- **Command syntax differs per agent** (see SKILL.md); in a chat without slash commands the same work is requested in words ("release notes since the last note", "what changed this week", "status"). Map the words to the commands in SKILL.md.
 - **Questions**: use the multiple-choice question tool when present; otherwise ask in plain text, one message, defaults pre-filled.
 - **Network**: the sandbox usually cannot reach private hosts (Azure DevOps, internal Git). Never try to clone; use the export zip.
 - **Paths**: the user's Windows paths (`D:\dev\…`) mean nothing in the sandbox. Config paths are rewritten by `import` and restored by `finish`; never hand back the sandbox copy of the config directly.

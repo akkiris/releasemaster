@@ -2,7 +2,7 @@
 
 [English](README.md) · **Türkçe**
 
-Bir veya birden fazla git deposunun geçmişini okuyup sürüm notuna, changelog'a ve proje dokümantasyonuna çeviren Claude skill'i (aynı zamanda Claude Code plugin'i). Commit mesajlarına değil, gerçekten ne değiştiğine bakar.
+Bir veya birden fazla git deposunun geçmişini okuyup sürüm notuna, changelog'a ve proje dokümantasyonuna çeviren Claude skill'i (aynı zamanda Claude Code plugin'i; Codex, Cursor, OpenCode ve Kimi Code ile de kullanılabilir). Commit mesajlarına değil, gerçekten ne değiştiğine bakar.
 
 - **Mühendis:** Diff'leri okur: migration'lar, yeni config anahtarları, route'lar, bağımlılık değişiklikleri, kırıcı değişiklikler, incelemeden geçmeyen commit'ler.
 - **Editör:** Projenin kendi biçiminde, dilinde ve tonunda yazar. Zaten sürüm notların varsa onların biçimini izler.
@@ -19,7 +19,38 @@ Bir ürün çoğu zaman birden fazla depodur (backend, web, mobil). ReleaseMaste
 /plugin install releasemaster@releasemaster
 ```
 
-Oturumu yeniden başlat. `/releasemaster:` yazınca tüm komutlar açıklamalarıyla listelenir, ezberlemen gerekmez. (Yerel klonla: `/plugin marketplace add ./klasor/releasemaster`.)
+Oturumu yeniden başlat. `/releasemaster:` yazınca tüm komutlar açıklamalarıyla listelenir, ezberlemen gerekmez.
+
+**Diğer araçlar: Codex, Cursor, OpenCode, Kimi Code**
+
+Dördü de açık Agent Skills biçimini (içinde `SKILL.md` olan klasör) `.agents/skills/` altından okur, yani tek kopya dördüne yeter. Kurulum için Python gerekmez, klasörü kopyalaman yeterli:
+
+```powershell
+# Windows PowerShell
+git clone https://github.com/akkiris/releasemaster.git
+New-Item -ItemType Directory -Force "$HOME\.agents\skills" | Out-Null
+Copy-Item -Recurse -Force releasemaster\plugins\releasemaster\skills\releasemaster "$HOME\.agents\skills\releasemaster"
+```
+
+```bash
+# macOS / Linux
+git clone https://github.com/akkiris/releasemaster.git
+mkdir -p ~/.agents/skills
+cp -r releasemaster/plugins/releasemaster/skills/releasemaster ~/.agents/skills/releasemaster
+```
+
+Yalnızca tek proje için (git ile ekibe paylaşılır) `<proje>/.agents/skills/releasemaster` altına kopyala. Sonra aracı yeniden başlat.
+
+Yalnızca OpenCode, isteğe bağlı: özel komutlar `/releasemaster-notes`, `/releasemaster-init`, …
+
+```powershell
+New-Item -ItemType Directory -Force "$HOME\.config\opencode\commands" | Out-Null
+Copy-Item releasemaster\adapters\opencode\commands\*.md "$HOME\.config\opencode\commands\"
+```
+
+Betik mi tercih edersin? `python tools/install.py --for codex cursor opencode kimi` aynı işi yapar (`--scope project`, `--dry-run`, `--uninstall` var). İsteğe bağlıdır, başka hiçbir şey ona bağlı değil.
+
+Claude Code'u **ve** Cursor/OpenCode'u birlikte kullanıyorsan: Claude plugin'ini yukarıdaki gibi kur ve `.agents/skills` kopyasını da yap. Skill'i ayrıca `.claude/skills` içine koyma; Cursor ve OpenCode o klasörü de okuduğu için skill iki kez listelenir.
 
 **claude.ai / masaüstü uygulaması (skill yükleme)**
 
@@ -44,6 +75,18 @@ Script'lerin çalıştığı makinede `git` ve Python 3.8+ yeterli, ek paket ger
 | `/releasemaster:docs-update [aralık]` | Son değişikliklerden etkilenen dokümanları bulur, cerrahi düzenler | evet, onayla |
 | `/releasemaster:release [versiyon]` | Checklist'li uçtan uca sürüm hazırlığı | evet, onayla |
 | `/releasemaster:config` | Ayarları göster / değiştir | yalnızca config |
+
+Çağırma biçimi araca göre değişir:
+
+| Araç | Nasıl çağrılır |
+|---|---|
+| Claude Code | `/releasemaster:notes` (plugin komutları, otomatik tamamlanır) |
+| Codex | `$releasemaster notes` |
+| Cursor | `/releasemaster notes` |
+| OpenCode | `/releasemaster-notes` (isteğe bağlı komutları kopyaladıktan sonra) ya da sözle iste |
+| Kimi Code | `/skill:releasemaster notes` |
+
+Her araçta isteğini düz cümleyle de anlatabilirsin; skill onu doğru komuta eşler.
 
 Hızlı sorular için komut gerekmez: "son 1 haftada neler değişti?" kısa bir özetle sohbette cevap verir, dosya yazmaz.
 
@@ -81,7 +124,7 @@ python plugins/releasemaster/skills/releasemaster/scripts/portable.py export
 # config henüz yoksa: ... export --repo ../api --repo ../web
 ```
 
-Oluşan `releasemaster-upload.zip` dosyasını sohbete ekle ve sözle iste ("son sürüm notundan sonrası için sürüm notu hazırla"). Zip yalnızca commit'leri taşır (tüm dallar ve etiketler), commit'lenmemiş çalışmayı değil. İş bitince yeni dosyaları ve güncellenmiş config'i geri alırsın; commit'le ve skill'in nerede kaldığını bilmesi için sonraki export'ta config'i de ekle. Slash komutları yalnızca Claude Code'da vardır.
+Oluşan `releasemaster-upload.zip` dosyasını sohbete ekle ve sözle iste ("son sürüm notundan sonrası için sürüm notu hazırla"). Zip yalnızca commit'leri taşır (tüm dallar ve etiketler), commit'lenmemiş çalışmayı değil. İş bitince yeni dosyaları ve güncellenmiş config'i geri alırsın; commit'le ve skill'in nerede kaldığını bilmesi için sonraki export'ta config'i de ekle. Slash komutları araca bağlıdır (Komutlar bölümüne bak); claude.ai'da yoktur, sözle iste.
 
 ## Çoklu depo config'i
 
@@ -109,16 +152,18 @@ Gerçek bir ürün (.NET backend ve React frontend, Azure DevOps tarzı "Merged 
 - Rutin işler (ikinci tur not, changelog güncelleme): skill'siz ile aynı kalite, ama yaklaşık %15–40 daha yavaş ve %7–10 daha fazla token.
 - Puanlanan 30 koşuda uydurma endpoint ya da PR numarası görülmedi. `verify.py` bir sigorta olarak var ve test vakalarındaki enjekte hataları yakalıyor.
 
-Bunlar tek projeden küçük örneklemler. Garanti değil, bir işaret olarak oku.
+Bunlar tek projeden küçük örneklemler ve yalnızca Claude ile ölçüldü. Skill açık Agent Skills biçimini izliyor ve kurulum yolları her aracın dokümanından alındı, ama Codex, Cursor, OpenCode ve Kimi Code içinde henüz çalıştırılmadı. Bunların hepsini garanti değil, bir işaret olarak oku.
 
 ## Depo yapısı
 
 ```
-.claude-plugin/marketplace.json            marketplace manifesti
+.claude-plugin/marketplace.json            marketplace manifesti (Claude Code)
 plugins/releasemaster/
   .claude-plugin/plugin.json               plugin manifesti
   commands/                                /releasemaster:<komut> dosyaları
   skills/releasemaster/                    skill: SKILL.md, references/, templates/, scripts/
+adapters/opencode/commands/                isteğe bağlı OpenCode özel komutları
+tools/install.py                           diğer araçlar için isteğe bağlı kurulum betiği
 tools/build_skill_zip.py                   claude.ai yüklemesi için zip
 ```
 

@@ -8,6 +8,7 @@ A skill is just this folder. Where you put it decides who sees it.
 |---|---|---|
 | **User** (personal, every project) | `~/.claude/skills/releasemaster/` — Windows: `%USERPROFILE%\.claude\skills\releasemaster\` | You use it across many projects |
 | **Workspace / project** (shared with team via git) | `<repo-or-workspace-root>/.claude/skills/releasemaster/` | The team should get the same skill and config in the repo |
+| **Other agents** (Codex, Cursor, OpenCode, Kimi Code) | `~/.agents/skills/releasemaster/` (user) or `<project>/.agents/skills/releasemaster/` (team) — all four read this path | Same skill in a non-Claude agent |
 | **claude.ai / desktop app** | Settings → Capabilities → Skills → upload the packaged `.skill` / zip | Using Claude outside Claude Code |
 
 Install commands (Claude Code):

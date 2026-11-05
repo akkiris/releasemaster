@@ -1,6 +1,7 @@
 ---
 name: releasemaster
-description: Engineer + technical editor + release manager for software projects. Analyzes code changes across one or many git repositories (backend, frontend, mobile…), writes and maintains project documentation (creates it from scratch at compact, basic or full level when none exists), and prepares release notes, changelogs and version bumps. Use this skill whenever the user asks for release notes, a changelog, "what changed since vX / since last release / since date", a version summary, release preparation, semantic versioning help, project documentation (README, architecture, setup, API docs), updating docs after new development, or onboarding a multi-repo product into a documentation/release workflow — even if they don't say "releasemaster". Also use for "/releasemaster" commands (init, status, analyze, docs, notes, changelog, release). Works in Claude Code, the desktop app and claude.ai (in claude.ai the user attaches an export zip of the repos).
+compatibility: Needs git and Python 3.8+ on the machine that runs the scripts, no other packages. Reads the same in any agent that supports the Agent Skills format (SKILL.md).
+description: Engineer + technical editor + release manager for software projects. Analyzes code changes across one or many git repositories (backend, frontend, mobile…), writes and maintains project documentation (creates it from scratch at compact, basic or full level when none exists), and prepares release notes, changelogs and version bumps. Use this skill whenever the user asks for release notes, a changelog, "what changed since vX / since last release / since date", a version summary, release preparation, semantic versioning help, project documentation (README, architecture, setup, API docs), updating docs after new development, or onboarding a multi-repo product into a documentation/release workflow — even if they don't say "releasemaster". Also use for "/releasemaster" commands (init, status, analyze, docs, notes, changelog, release). Works in any Agent Skills agent (Claude, Codex, Cursor, OpenCode, Kimi Code); in a sandbox without disk access the user attaches an export zip.
 ---
 
 # ReleaseMaster
@@ -17,7 +18,7 @@ The guiding principle: **the user owns their docs.** You propose, show diffs/pre
 
 | Path | Read when |
 |---|---|
-| `references/environments.md` | Not in Claude Code with direct repo access (claude.ai, sandbox, desktop app): how to get the repos in and the results out |
+| `references/environments.md` | When you cannot see the repos (claude.ai, an empty sandbox, a desktop app without a shell): how to get the repos in and the results out |
 | `references/setup.md` | First run / `init`, installing user vs workspace scope, config questions |
 | `references/config-schema.md` | Reading or writing `releasemaster.config.json` |
 | `references/playbook.md` | **`notes` / `changelog` / `analyze`**: the compact path (flow, prose rules, version, CHANGELOG) |
@@ -33,6 +34,8 @@ The guiding principle: **the user owns their docs.** You propose, show diffs/pre
 
 Scripts are plain Python 3.8+ with no dependencies besides `git` on PATH. Run them with `python` (Windows) or `python3`. Run `--help` for options.
 
+**Paths.** `scripts/…`, `references/…` and `templates/…` in this file are relative to the folder that contains this SKILL.md (`${KIMI_SKILL_DIR}` in Kimi Code), not to the user's project. Your working directory is the project, so run scripts by their full path: `python3 <skill-dir>/scripts/digest.py …`. Work out `<skill-dir>` once from where this file was loaded.
+
 **Reading budget.** Tokens and minutes are the price of this skill, so load only what the task needs. This file is enough for a quick question. Beyond that read just the one reference for the command you are running (table above) — `notes`/`changelog`/`analyze` → `playbook.md` (not `release-notes.md`, not `editorial-style.md`); `init`/`config` → `setup.md` (+ `config-schema.md` when writing the file); `docs …` → `documentation.md`. `editorial-style.md` is for docs work; `templates/` only when the project has no note format of its own. Do not read the others "just in case".
 
 ## Depth: match the effort to the question
@@ -47,7 +50,7 @@ If the user states a depth ("hızlıca", "detaylı incele") follow it; otherwise
 
 ## Step -1 — Can you see the repos?
 
-If cwd is inside a git workspace, carry on. If there are no repos (claude.ai, empty sandbox), do not search or guess: read `references/environments.md` and ask for the export zip in two lines. Slash commands exist only in Claude Code; elsewhere the user asks in words — map them to the commands below.
+If cwd is inside a git workspace, carry on. If there are no repos (claude.ai, empty sandbox), do not search or guess: read `references/environments.md` and ask for the export zip in two lines. The user may call you with a command word (`/releasemaster:notes` in Claude Code, `$releasemaster notes` in Codex, `/releasemaster notes` in Cursor, `/skill:releasemaster notes` in Kimi Code, `/releasemaster-notes` in OpenCode) or in plain words. Either way, map it to a command below.
 
 ## Step 0 — Decide whether you need the config at all
 
@@ -60,11 +63,11 @@ Otherwise load the config — it is the skill's memory: where the docs live, whi
 - **Found** → load silently, mention product + repos in one line, continue.
 - **Not found** → run **init** (`references/setup.md`) first. Keep it short: detect, then a handful of questions with defaults pre-filled.
 
-The file, not Claude's memory, is the source of truth, so teammates and CI see the same state.
+The file, not your memory, is the source of truth, so teammates and CI see the same state.
 
 ## Commands
 
-Users may type these as `/releasemaster <command>` or just describe the intent in natural language. Map intent to a command; if it's ambiguous, ask one question.
+Users may name a command (first word after the skill name, see above) or just describe the intent in natural language. Map intent to a command; if it's ambiguous, ask one question.
 
 | Command | What it does |
 |---|---|

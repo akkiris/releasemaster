@@ -2,7 +2,7 @@
 
 **English** · [Türkçe](README.tr.md)
 
-A Claude skill (and Claude Code plugin) that reads your git history across one or many repositories and turns it into release notes, changelogs and project documentation, with an engineer's eye for what really changed.
+A Claude skill (also a Claude Code plugin, and usable in Codex, Cursor, OpenCode and Kimi Code) that reads your git history across one or many repositories and turns it into release notes, changelogs and project documentation, with an engineer's eye for what really changed.
 
 - **Engineer**: reads diffs, not just commit messages: migrations, new config keys, routes, dependency changes, breaking changes, commits that bypassed review.
 - **Editor**: writes it up in your project's own format, language and tone. If you already have release notes, it follows them.
@@ -19,7 +19,38 @@ One product often means several repositories (backend, web, mobile). ReleaseMast
 /plugin install releasemaster@releasemaster
 ```
 
-Restart the session; typing `/releasemaster:` lists every command with its description, so there is nothing to memorise. (From a local clone: `/plugin marketplace add ./path/to/releasemaster`.)
+Restart the session; typing `/releasemaster:` lists every command with its description, so there is nothing to memorise.
+
+**Other agents: Codex, Cursor, OpenCode, Kimi Code**
+
+They all read the open Agent Skills format (a folder with `SKILL.md`) from `.agents/skills/`, so one copy serves all four. No Python needed for the install, just copy the folder:
+
+```powershell
+# Windows PowerShell
+git clone https://github.com/akkiris/releasemaster.git
+New-Item -ItemType Directory -Force "$HOME\.agents\skills" | Out-Null
+Copy-Item -Recurse -Force releasemaster\plugins\releasemaster\skills\releasemaster "$HOME\.agents\skills\releasemaster"
+```
+
+```bash
+# macOS / Linux
+git clone https://github.com/akkiris/releasemaster.git
+mkdir -p ~/.agents/skills
+cp -r releasemaster/plugins/releasemaster/skills/releasemaster ~/.agents/skills/releasemaster
+```
+
+For one project only (shared with the team through git), copy to `<project>/.agents/skills/releasemaster` instead. Restart the agent afterwards.
+
+OpenCode only, optional: custom commands `/releasemaster-notes`, `/releasemaster-init`, …
+
+```powershell
+New-Item -ItemType Directory -Force "$HOME\.config\opencode\commands" | Out-Null
+Copy-Item releasemaster\adapters\opencode\commands\*.md "$HOME\.config\opencode\commands\"
+```
+
+Prefer a script? `python tools/install.py --for codex cursor opencode kimi` does the same (`--scope project`, `--dry-run` and `--uninstall` exist). It is optional; nothing else depends on it.
+
+If you use Claude Code **and** Cursor/OpenCode: install the Claude plugin as above and the copy to `.agents/skills`. Do not also put the skill in `.claude/skills`, because Cursor and OpenCode read that folder too and would list the skill twice.
 
 **claude.ai / desktop app (skill upload)**
 
@@ -44,6 +75,18 @@ Requirements on the machine where the scripts run: `git` and Python 3.8+, no pac
 | `/releasemaster:docs-update [range]` | Finds docs affected by recent changes and edits them surgically | yes, with approval |
 | `/releasemaster:release [version]` | Whole release prep with checklist | yes, with approval |
 | `/releasemaster:config` | Show / edit settings | config only |
+
+How you call it depends on the agent:
+
+| Agent | Call it with |
+|---|---|
+| Claude Code | `/releasemaster:notes` (plugin commands, autocompleted) |
+| Codex | `$releasemaster notes` |
+| Cursor | `/releasemaster notes` |
+| OpenCode | `/releasemaster-notes` (after copying the optional commands) or ask in words |
+| Kimi Code | `/skill:releasemaster notes` |
+
+In every agent you can also just describe what you want; the skill maps it to the right command.
 
 No command needed for quick questions: "what changed in the last week?" answers in chat from a compact digest and writes nothing.
 
@@ -81,7 +124,7 @@ python plugins/releasemaster/skills/releasemaster/scripts/portable.py export
 # no config yet: ... export --repo ../api --repo ../web
 ```
 
-Attach the resulting `releasemaster-upload.zip` and ask in words ("write release notes since the last note"). The zip carries commits only (all branches and tags), not uncommitted work. When finished you get the new files and the updated config back; commit them, and attach the config with the next export so the skill knows where it stopped. Slash commands exist only in Claude Code.
+Attach the resulting `releasemaster-upload.zip` and ask in words ("write release notes since the last note"). The zip carries commits only (all branches and tags), not uncommitted work. When finished you get the new files and the updated config back; commit them, and attach the config with the next export so the skill knows where it stopped. Slash commands depend on the agent (see Commands); claude.ai has none, so ask in words.
 
 ## Multi-repository config
 
@@ -109,16 +152,18 @@ Tested on one real product (a .NET backend and a React frontend, Azure DevOps st
 - Routine tasks (second round of notes, changelog update): same quality as without the skill, but roughly 15–40 % slower and 7–10 % more tokens.
 - No invented endpoints or PR numbers were seen in 30 graded runs; `verify.py` exists as insurance and catches injected faults in its test cases.
 
-These are small samples from one project. Treat them as a signal, not a guarantee.
+These are small samples from one project, measured with Claude only. The skill follows the open Agent Skills format and the install paths come from each agent's documentation, but it has not been run in Codex, Cursor, OpenCode or Kimi Code yet. Treat all of this as a signal, not a guarantee.
 
 ## Repository layout
 
 ```
-.claude-plugin/marketplace.json            marketplace manifest
+.claude-plugin/marketplace.json            marketplace manifest (Claude Code)
 plugins/releasemaster/
   .claude-plugin/plugin.json               plugin manifest
   commands/                                /releasemaster:<command> files
   skills/releasemaster/                    the skill: SKILL.md, references/, templates/, scripts/
+adapters/opencode/commands/                optional OpenCode custom commands
+tools/install.py                           optional installer for the other agents
 tools/build_skill_zip.py                   zip for claude.ai upload
 ```
 
