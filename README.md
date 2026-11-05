@@ -16,7 +16,7 @@ One product often means several repositories (backend, web, mobile). ReleaseMast
 
 ```
 /plugin marketplace add akkiris/releasemaster
-/plugin install releasemaster@releasemaster-local
+/plugin install releasemaster@releasemaster
 ```
 
 Restart the session; typing `/releasemaster:` lists every command with its description, so there is nothing to memorise. (From a local clone: `/plugin marketplace add ./path/to/releasemaster`.)

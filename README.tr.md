@@ -16,7 +16,7 @@ Bir ürün çoğu zaman birden fazla depodur (backend, web, mobil). ReleaseMaste
 
 ```
 /plugin marketplace add akkiris/releasemaster
-/plugin install releasemaster@releasemaster-local
+/plugin install releasemaster@releasemaster
 ```
 
 Oturumu yeniden başlat. `/releasemaster:` yazınca tüm komutlar açıklamalarıyla listelenir, ezberlemen gerekmez. (Yerel klonla: `/plugin marketplace add ./klasor/releasemaster`.)
