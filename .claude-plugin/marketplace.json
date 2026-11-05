@@ -1,0 +1,11 @@
+{
+  "name": "releasemaster-local",
+  "owner": { "name": "Ali Kaan" },
+  "plugins": [
+    {
+      "name": "releasemaster",
+      "source": "./plugins/releasemaster",
+      "description": "Mühendis + editör + release manager: değişiklik analizi, sürüm notu, changelog ve dokümantasyon"
+    }
+  ]
+}

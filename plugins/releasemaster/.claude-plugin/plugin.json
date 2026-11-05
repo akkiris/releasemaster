@@ -1,0 +1,7 @@
+{
+  "name": "releasemaster",
+  "version": "0.4.0",
+  "description": "Mühendis + editör + release manager: çoklu repo değişiklik analizi, sürüm notu, changelog, dokümantasyon ve yayın hazırlığı",
+  "author": { "name": "Ali Kaan" },
+  "keywords": ["release-notes", "changelog", "documentation", "release-management"]
+}

@@ -1,0 +1,6 @@
+__pycache__/
+*.pyc
+dist/
+releasemaster-upload.zip
+rm-workspace/
+.releasemaster/cache/
