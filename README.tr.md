@@ -15,7 +15,7 @@ Bir ürün çoğu zaman birden fazla depodur (backend, web, mobil). ReleaseMaste
 **Claude Code (plugin, önerilen)**
 
 ```
-/plugin marketplace add <github-kullanici-adin>/releasemaster
+/plugin marketplace add akkiris/releasemaster
 /plugin install releasemaster@releasemaster-local
 ```
 

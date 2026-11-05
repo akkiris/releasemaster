@@ -15,7 +15,7 @@ One product often means several repositories (backend, web, mobile). ReleaseMast
 **Claude Code (plugin, recommended)**
 
 ```
-/plugin marketplace add <your-github-user>/releasemaster
+/plugin marketplace add akkiris/releasemaster
 /plugin install releasemaster@releasemaster-local
 ```
 
